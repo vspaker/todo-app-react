@@ -19,6 +19,7 @@ export default class App extends Component {
 			this.createTodoItem('Have a lunch'),
 		],
 		term: ``,
+		filter: `all`,
 	};
 	createTodoItem(label) {
 		return {
@@ -68,6 +69,25 @@ export default class App extends Component {
 			);
 		});
 	}
+	filter(items, filter) {
+		switch (filter) {
+			case 'all':
+				return items;
+
+			case 'active':
+				return items.filter(
+					(el) => !el.done
+				);
+
+			case 'done':
+				return items.filter(
+					(el) => el.done
+				);
+
+			default:
+				return items;
+		}
+	}
 	findItems = (term) => {
 		this.setState({ term });
 	};
@@ -109,12 +129,19 @@ export default class App extends Component {
 			};
 		});
 	};
+	onFilterChange = (filter) => {
+		this.setState({ filter });
+	};
 
 	render() {
-		const { todoData, term } = this.state;
-		const visibleItems = this.search(
+		const {
 			todoData,
-			term
+			term,
+			filter,
+		} = this.state;
+		const visibleItems = this.filter(
+			this.search(todoData, term),
+			filter
 		);
 		const doneCount = todoData.filter(
 			(el) => el.done
@@ -131,7 +158,12 @@ export default class App extends Component {
 					<SearchPanel
 						onSearch={this.findItems}
 					/>
-					<ItemStatusFilter />
+					<ItemStatusFilter
+						filter={filter}
+						onFilterChange={
+							this.onFilterChange
+						}
+					/>
 				</div>
 
 				<TodoList
